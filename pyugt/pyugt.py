@@ -533,8 +533,12 @@ def main():
 
     # Main waiting loop (we wait for hotkeys to be pressed)
     print('Press CTRL+C or close this window to quit.')
+    auto_ocr_time = float(config['DEFAULT']['auto_ocr_time'])
     while 1:
         time.sleep(1)
+        if  config['INTERNAL']['region'] != '' and auto_ocr_time> 0:
+            time.sleep(auto_ocr_time)
+            translateRegion(sct, TBox, config, configFile)
 
     # Exit gracefully if no exception until this point
     return 0
