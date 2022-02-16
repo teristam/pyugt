@@ -54,6 +54,9 @@ import pytesseract
 # For translation - TODO: try to find a Japanese -> English offline translator, not good to be relying on an unofficial Google API, can change at any time
 from googletrans import Translator
 
+import traceback
+
+
 ## Import version
 # Get version, better than importing the module because can fail if the requirements aren't met
 # See https://packaging.python.org/guides/single-sourcing-package-version/
@@ -411,10 +414,13 @@ def translateRegion(sct, TBox, config, configFile):
         img.save(imgtemppath, 'PNG')
 
     # Tesseract OCR to extract text, directly from a PIL image object thanks to the pytesseract wrapper
-    ocrtext = pytesseract.image_to_string(img, lang=langsource_ocr, nice=1)
+    try: 
+        ocrtext = pytesseract.image_to_string(img, lang=langsource_ocr, nice=1, config=config['DEFAULT']['tesseract_config'])
+    except:
+        traceback.print_exc()
     # TODO: use image_to_boxes or image_to_osd or image_to_data to get position of strings and place them back in place on a screenshot, similarly to what Universal Game Translator does
     if not ocrtext.strip():
-        show_errorbox('No text found by OCR! Make sure your capture region is properly set!')
+        print('No text found by OCR! Make sure your capture region is properly set!')
         return
     if config['DEFAULT']['debug'] == 'True':
         print('OCR\'ed text:')
