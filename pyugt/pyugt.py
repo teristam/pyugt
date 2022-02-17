@@ -354,7 +354,7 @@ def gtranslate(ocrtext, langsource_trans, langtarget):
     transtext = transobj.text
     return transtext
 
-def translateRegion(sct, TBox, config, configFile, app):
+def translateRegion(sct, config, configFile, app):
     """Capture a screenshot of a previously defined region, detect with Tesseract OCR and translate via Google Translator"""
     if config['DEFAULT']['debug'] == 'True':
         print('translateRegion triggered')
@@ -416,6 +416,7 @@ def translateRegion(sct, TBox, config, configFile, app):
     # Tesseract OCR to extract text, directly from a PIL image object thanks to the pytesseract wrapper
     try: 
         ocrtext = pytesseract.image_to_string(img, lang=langsource_ocr, nice=1, config=config['DEFAULT']['tesseract_config'])
+        ocrtext = ocrtext.replace(' ','')
     except:
         traceback.print_exc()
     # TODO: use image_to_boxes or image_to_osd or image_to_data to get position of strings and place them back in place on a screenshot, similarly to what Universal Game Translator does
@@ -455,13 +456,12 @@ def translateRegion(sct, TBox, config, configFile, app):
             f.write(transtext)
             f.write("\n---------------------\n")
 
-    TBox.update_text(ocrtext, transtext)
     app.data = ocrtext
 
-def selectAndTranslateRegion(sct, RegionSelector, TBox, config, configFile):
+def selectAndTranslateRegion(sct, RegionSelector, config, configFile):
     """Wrapper to select a region and translate it directly after, this streamlines the process"""
     selectRegion(sct, RegionSelector, config, configFile, quitOnSelect=True)
-    translateRegion(sct, TBox, config, configFile)
+    translateRegion(sct, config, configFile)
 
 def show_errorbox(msg):
     """Show an error box"""
@@ -522,14 +522,14 @@ def main(app=None):
 
     # Initialize GUI windows
     RegionSelector = showPILandSelect()
-    TBox = TranslationBox(config, configFile)
+    # TBox = TranslationBox(config, configFile)
 
     # Set global hotkeys, loading from config file
     keyboard.add_hotkey(config['DEFAULT']['hotkey_set_region_capture'], selectRegion, args=(sct, RegionSelector, config, configFile))  # Do NOT set suppress=True, else this may raise exceptions!
     print('Hit %s to set the region to capture.' % config['DEFAULT']['hotkey_set_region_capture'])
-    keyboard.add_hotkey(config['DEFAULT']['hotkey_translate_region_capture'], translateRegion, args=(sct, TBox, config, configFile, app))
+    keyboard.add_hotkey(config['DEFAULT']['hotkey_translate_region_capture'], translateRegion, args=(sct, config, configFile, app))
     print('Hit %s to translate the region (make sure to close the translation window before requesting another one).' % config['DEFAULT']['hotkey_translate_region_capture'])
-    keyboard.add_hotkey(config['DEFAULT']['hotkey_set_and_translate_region_capture'], selectAndTranslateRegion, args=(sct, RegionSelector, TBox, config, configFile))
+    keyboard.add_hotkey(config['DEFAULT']['hotkey_set_and_translate_region_capture'], selectAndTranslateRegion, args=(sct, RegionSelector, config, configFile))
     print('Hit %s to set AND translate a region.' % config['DEFAULT']['hotkey_set_and_translate_region_capture'])
 
     # Main waiting loop (we wait for hotkeys to be pressed)
@@ -539,7 +539,7 @@ def main(app=None):
         time.sleep(1)
         if  config['INTERNAL']['region'] != '' and auto_ocr_time> 0:
             time.sleep(auto_ocr_time)
-            translateRegion(sct, TBox, config, configFile, app)
+            translateRegion(sct, config, configFile, app)
 
     # Exit gracefully if no exception until this point
     return 0
