@@ -418,6 +418,7 @@ def translateRegion(sct, config, configFile, app):
         ocrtext = pytesseract.image_to_string(img, lang=langsource_ocr, nice=1, config=config['DEFAULT']['tesseract_config'])
         ocrtext = ocrtext.replace(' ','')
     except:
+        ocrtext=''
         traceback.print_exc()
     # TODO: use image_to_boxes or image_to_osd or image_to_data to get position of strings and place them back in place on a screenshot, similarly to what Universal Game Translator does
     if not ocrtext.strip():

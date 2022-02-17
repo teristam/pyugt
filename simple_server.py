@@ -25,6 +25,7 @@ from random import randint
 from time import sleep
 from threading import Thread, Event
 from pyugt import main
+import webbrowser
 
 __author__ = 'slynn'
 textSent = ''
@@ -80,4 +81,5 @@ def test_disconnect():
 if __name__ == '__main__':
     pyugtThread = Thread(target=main, args=(app,))
     pyugtThread.start()
+    webbrowser.open('http://127.0.0.1:5000/')
     socketio.run(app)
