@@ -1,7 +1,7 @@
 #%%
 from googletrans import Translator
 translator = Translator()
-s = translator.translate('このまま、 続けたら・ ・ ・・何を言われるか・ ・ ・ ・怖いんだ。',src='ja', dest='zh-tw')
+s = translator.translate('このまま、 続けたら・ ・ ・・何を言われるか・ ・ ・ ・怖いんだ。',src='ja', dest='en')
 print(s.text)
 # %%
 from mss import mss

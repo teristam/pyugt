@@ -354,7 +354,7 @@ def gtranslate(ocrtext, langsource_trans, langtarget):
     transtext = transobj.text
     return transtext
 
-def translateRegion(sct, TBox, config, configFile):
+def translateRegion(sct, TBox, config, configFile, app):
     """Capture a screenshot of a previously defined region, detect with Tesseract OCR and translate via Google Translator"""
     if config['DEFAULT']['debug'] == 'True':
         print('translateRegion triggered')
@@ -456,6 +456,7 @@ def translateRegion(sct, TBox, config, configFile):
             f.write("\n---------------------\n")
 
     TBox.update_text(ocrtext, transtext)
+    app.data = ocrtext
 
 def selectAndTranslateRegion(sct, RegionSelector, TBox, config, configFile):
     """Wrapper to select a region and translate it directly after, this streamlines the process"""
@@ -478,7 +479,7 @@ def show_errorbox_exception(msg):
 
 
 ### Main program
-def main():
+def main(app=None):
     # Commandline arguments
     parser = optparse.OptionParser()
     parser.add_option("-c", "--config", dest="config", default=None,
@@ -526,7 +527,7 @@ def main():
     # Set global hotkeys, loading from config file
     keyboard.add_hotkey(config['DEFAULT']['hotkey_set_region_capture'], selectRegion, args=(sct, RegionSelector, config, configFile))  # Do NOT set suppress=True, else this may raise exceptions!
     print('Hit %s to set the region to capture.' % config['DEFAULT']['hotkey_set_region_capture'])
-    keyboard.add_hotkey(config['DEFAULT']['hotkey_translate_region_capture'], translateRegion, args=(sct, TBox, config, configFile))
+    keyboard.add_hotkey(config['DEFAULT']['hotkey_translate_region_capture'], translateRegion, args=(sct, TBox, config, configFile, app))
     print('Hit %s to translate the region (make sure to close the translation window before requesting another one).' % config['DEFAULT']['hotkey_translate_region_capture'])
     keyboard.add_hotkey(config['DEFAULT']['hotkey_set_and_translate_region_capture'], selectAndTranslateRegion, args=(sct, RegionSelector, TBox, config, configFile))
     print('Hit %s to set AND translate a region.' % config['DEFAULT']['hotkey_set_and_translate_region_capture'])
@@ -538,7 +539,7 @@ def main():
         time.sleep(1)
         if  config['INTERNAL']['region'] != '' and auto_ocr_time> 0:
             time.sleep(auto_ocr_time)
-            translateRegion(sct, TBox, config, configFile)
+            translateRegion(sct, TBox, config, configFile, app)
 
     # Exit gracefully if no exception until this point
     return 0
